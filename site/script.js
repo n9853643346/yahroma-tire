@@ -1,19 +1,20 @@
+const SLOT_MINUTES = 30;
+const SLOTS_SHOWN = 20; // 10 часов вперёд по 30 минут — демо-окно, не вся занятость мастеров
+
 function generateSlots(date) {
   const slots = [];
   const start = new Date(date);
-  start.setMinutes(0, 0, 0);
-  // Сдвигаем к ближайшему чётному часу вперёд (2-часовые окна: 00-02, 02-04, ...)
-  const hour = start.getHours();
-  const nextEvenHour = hour % 2 === 0 ? hour + 2 : hour + 1;
-  start.setHours(nextEvenHour);
+  start.setSeconds(0, 0);
+  // Округляем вперёд до ближайших 30 минут — каждый слот фиксированной длины 30 мин
+  const minutes = start.getMinutes();
+  const roundedMinutes = minutes < 30 ? 30 : 60;
+  start.setMinutes(roundedMinutes, 0, 0);
 
-  for (let i = 0; i < 12; i++) {
-    const slotStart = new Date(start);
-    slotStart.setHours(start.getHours() + i * 2);
-    const slotEnd = new Date(slotStart);
-    slotEnd.setHours(slotStart.getHours() + 2);
+  for (let i = 0; i < SLOTS_SHOWN; i++) {
+    const slotStart = new Date(start.getTime() + i * SLOT_MINUTES * 60000);
+    const slotEnd = new Date(slotStart.getTime() + SLOT_MINUTES * 60000);
 
-    const fmt = (d) => String(d.getHours()).padStart(2, "0") + ":00";
+    const fmt = (d) => String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
     const dayLabel = slotStart.getDate() === date.getDate() ? "сегодня" : "завтра";
 
     slots.push({
