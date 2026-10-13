@@ -1,8 +1,8 @@
 :root {
   --bg: #14161a;
   --bg-card: #1e2127;
-  --accent: #ff7a1a;
-  --accent-dark: #d9610a;
+  --accent: #cb2122;
+  --accent-dark: #961415;
   --text: #f3f3f3;
   --text-muted: #a3a8b3;
   --border: #2a2d34;
@@ -72,11 +72,30 @@ section {
 
 .brand-logo {
   display: block;
+  border-radius: 50%;
 }
 
 .brand-name {
   font-weight: 700;
   letter-spacing: 0.02em;
+}
+
+.gallery-link {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.gallery-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* ---- tread divider ---- */
@@ -103,7 +122,7 @@ section {
 
 .hero-logo {
   margin-bottom: 8px;
-  filter: drop-shadow(0 0 18px rgba(255, 122, 26, 0.35));
+  filter: drop-shadow(0 0 20px rgba(203, 33, 34, 0.45));
   animation: spin-in 1.1s ease-out;
 }
 
@@ -326,6 +345,66 @@ section {
 
 #footer p {
   margin: 4px 0;
+}
+
+/* ---- price table ---- */
+
+.price-subheading {
+  margin-top: 32px;
+  font-size: 18px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.price-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 560px;
+  font-size: 14px;
+}
+
+.price-table th,
+.price-table td {
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.price-table th {
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.price-table td:first-child {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.price-note {
+  margin-top: 10px;
+  color: var(--text-muted);
+}
+
+/* ---- gallery ---- */
+
+#gallery {
+  text-align: center;
+}
+
+.gallery-photo {
+  max-width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.gallery-caption {
+  color: var(--text-muted);
+  margin-top: 10px;
 }
 
 /* ---- responsive ---- */
