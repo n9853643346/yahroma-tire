@@ -288,6 +288,84 @@ section {
   color: var(--text-muted);
 }
 
+/* ---- quiz ---- */
+
+.quiz-sub {
+  color: var(--text-muted);
+  margin-top: -8px;
+}
+
+.quiz-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 420px;
+}
+
+.quiz-form label {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.quiz-form select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-size: 16px;
+}
+
+#quiz-calc {
+  margin-top: 16px;
+  padding: 14px 24px;
+  min-height: 48px;
+  border-radius: 10px;
+  border: 2px solid var(--accent);
+  background: transparent;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  max-width: 420px;
+}
+
+#quiz-calc:hover {
+  background: var(--accent);
+  color: #14161a;
+}
+
+.quiz-result {
+  margin-top: 18px;
+  max-width: 420px;
+}
+
+.quiz-result:empty {
+  display: none;
+}
+
+.quiz-result-price {
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.quiz-result-price .amount {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.quiz-result-price a {
+  display: inline-block;
+  margin-top: 12px;
+  font-weight: 700;
+}
+
 /* ---- booking ---- */
 
 #booking-form {
@@ -435,15 +513,57 @@ section {
   text-align: center;
 }
 
-.gallery-photo {
-  max-width: 100%;
-  border-radius: 12px;
-  border: 1px solid var(--border);
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  text-align: left;
 }
 
-.gallery-caption {
+.gallery-cell {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  aspect-ratio: 4 / 3;
+  position: relative;
+}
+
+.gallery-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-cell figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  color: #fff;
+  font-size: 12px;
+  padding: 16px 8px 6px;
+}
+
+.gallery-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
   color: var(--text-muted);
-  margin-top: 10px;
+  font-size: 12px;
+  text-align: center;
+  padding: 8px;
+}
+
+.gallery-note {
+  color: var(--text-muted);
+  margin-top: 14px;
 }
 
 /* ---- responsive ---- */
@@ -462,6 +582,9 @@ section {
     grid-template-columns: 1fr;
   }
   #slots {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .gallery-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   section {

@@ -1,6 +1,63 @@
 const SLOT_MINUTES = 30;
 const SLOTS_SHOWN = 20; // 10 часов вперёд по 30 минут — демо-окно, не вся занятость мастеров
 
+// Прайс для седан/универсал/хэтчбек — те же цифры, что в таблице #services
+// (с реального прайс-листа точки). Ключи: сезонная смена, комплекс, балансировка, съём-установка, сборка-разборка.
+const PRICE_TABLE = {
+  R13: { seasonal: 1800, complex: 2600, balance: 230, mount: 220, assembly: 200 },
+  R14: { seasonal: 1800, complex: 2600, balance: 230, mount: 220, assembly: 200 },
+  R15: { seasonal: 1840, complex: 2660, balance: 240, mount: 220, assembly: 205 },
+  R16: { seasonal: 2120, complex: 3040, balance: 290, mount: 240, assembly: 320 },
+  R17: { seasonal: 2220, complex: 3180, balance: 305, mount: 250, assembly: 240 },
+  R18: { seasonal: 2360, complex: 3360, balance: 325, mount: 265, assembly: 250 },
+  R19: { seasonal: 2600, complex: 3499, balance: 350, mount: 300, assembly: 290 },
+  R20: { seasonal: 2760, complex: 4060, balance: 365, mount: 325, assembly: 325 },
+  R21: { seasonal: 3000, complex: 4400, balance: 390, mount: 360, assembly: 350 },
+  R22: { seasonal: 3160, complex: 4660, balance: 410, mount: 380, assembly: 375 },
+};
+
+const SERVICE_LABELS = {
+  seasonal: "Сезонная смена колёс в сборе",
+  complex: "Комплекс (смена + балансировка)",
+  balance: "Балансировка",
+  mount: "Съём-установка",
+  assembly: "Сборка-разборка",
+};
+
+function initQuiz() {
+  const calcBtn = document.getElementById("quiz-calc");
+  const resultEl = document.getElementById("quiz-result");
+  if (!calcBtn || !resultEl) return;
+
+  calcBtn.addEventListener("click", () => {
+    const body = document.getElementById("quiz-body").value;
+    const size = document.getElementById("quiz-size").value;
+    const service = document.getElementById("quiz-service").value;
+
+    if (body === "other") {
+      resultEl.innerHTML = `
+        <div class="quiz-result-price">
+          Для внедорожников, кроссоверов и микроавтобусов цена считается индивидуально.
+          <br />Позвоните нам — скажем точно: <a href="tel:+79161690626">+7 916 169-06-26</a>
+        </div>`;
+      return;
+    }
+
+    const price = PRICE_TABLE[size]?.[service];
+    if (!price) {
+      resultEl.innerHTML = `<div class="quiz-result-price">Не нашли цену для этого сочетания — позвоните, уточним: <a href="tel:+79161690626">+7 916 169-06-26</a></div>`;
+      return;
+    }
+
+    resultEl.innerHTML = `
+      <div class="quiz-result-price">
+        <span class="amount">${price} ₽</span>
+        ${SERVICE_LABELS[service]}, ${size}
+        <br /><a href="#booking">Записаться на это время →</a>
+      </div>`;
+  });
+}
+
 function generateSlots(date) {
   const slots = [];
   const start = new Date(date);
@@ -135,4 +192,5 @@ document.addEventListener("DOMContentLoaded", () => {
   renderSlots();
   initBookingForm();
   initRatingCounter();
+  initQuiz();
 });

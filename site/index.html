@@ -118,9 +118,34 @@
   </section>
 
   <section id="gallery">
-    <h2>Как нас узнать на месте</h2>
-    <img src="assets/shop-photo-1.jpg" alt="Подъезд к шиномонтажу на Вокзальной, 75, Яхрома — вид с дороги" class="gallery-photo" loading="lazy" />
-    <p class="gallery-caption">Вот так выглядит подъезд — розовое здание с вывеской «Шиномонтаж», Вокзальная ул., 75</p>
+    <h2>Как нас узнать и что мы делаем</h2>
+    <div class="gallery-grid">
+      <figure class="gallery-cell">
+        <img src="assets/shop-photo-1.jpg" alt="Подъезд к шиномонтажу на Вокзальной, 75, Яхрома — вид с дороги" loading="lazy" />
+        <figcaption>Подъезд — Вокзальная ул., 75</figcaption>
+      </figure>
+      <div class="gallery-cell gallery-placeholder">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.2"/></svg>
+        <span>Шиномонтаж в процессе</span>
+      </div>
+      <div class="gallery-cell gallery-placeholder">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.2"/></svg>
+        <span>Балансировка</span>
+      </div>
+      <div class="gallery-cell gallery-placeholder">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.2"/></svg>
+        <span>Ремонт дисков</span>
+      </div>
+      <div class="gallery-cell gallery-placeholder">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.2"/></svg>
+        <span>Оборудование</span>
+      </div>
+      <div class="gallery-cell gallery-placeholder">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.2"/></svg>
+        <span>Наша команда</span>
+      </div>
+    </div>
+    <p class="gallery-note"><small>Остальные ячейки — места под реальные фото с точки, добавим как только пришлёте.</small></p>
   </section>
 
   <section id="reviews">
@@ -133,6 +158,46 @@
       <blockquote>«Не пришлось долго ждать, приняли сразу»</blockquote>
     </div>
     <p class="review-note"><small>По мотивам отзывов на Яндекс.Картах, не дословные цитаты.</small></p>
+  </section>
+
+  <section id="quiz">
+    <h2>Посчитайте стоимость заранее</h2>
+    <p class="quiz-sub">Ответьте на 3 вопроса — узнаете цену и сразу сможете записаться на удобное время.</p>
+
+    <form id="quiz-form" class="quiz-form">
+      <label for="quiz-body">1. Тип кузова</label>
+      <select id="quiz-body" name="quiz-body">
+        <option value="standard">Седан / универсал / хэтчбек</option>
+        <option value="other">Внедорожник / кроссовер / микроавтобус</option>
+      </select>
+
+      <label for="quiz-size">2. Размер колёс</label>
+      <select id="quiz-size" name="quiz-size">
+        <option value="R13">R13</option>
+        <option value="R14">R14</option>
+        <option value="R15">R15</option>
+        <option value="R16">R16</option>
+        <option value="R17">R17</option>
+        <option value="R18">R18</option>
+        <option value="R19">R19</option>
+        <option value="R20">R20</option>
+        <option value="R21">R21</option>
+        <option value="R22">R22</option>
+      </select>
+
+      <label for="quiz-service">3. Что нужно сделать</label>
+      <select id="quiz-service" name="quiz-service">
+        <option value="seasonal">Сезонная смена колёс в сборе</option>
+        <option value="complex">Комплекс (смена + балансировка)</option>
+        <option value="balance">Только балансировка</option>
+        <option value="mount">Съём-установка</option>
+        <option value="assembly">Сборка-разборка</option>
+      </select>
+
+      <button type="button" id="quiz-calc">Посчитать стоимость</button>
+    </form>
+
+    <div id="quiz-result" class="quiz-result" role="status"></div>
   </section>
 
   <section id="booking">
