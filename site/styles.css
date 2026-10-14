@@ -32,6 +32,93 @@ section {
   padding: 48px 20px;
   max-width: 960px;
   margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* ---- фирменные водяные знаки: колесо/машина/мотоцикл на каждой секции ---- */
+
+.wm {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.07;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.wm-wheel { background-image: url('assets/logo.svg'); }
+.wm-car { background-image: url('assets/car-silhouette.svg'); }
+.wm-moto { background-image: url('assets/moto-silhouette.svg'); }
+
+.wm-br { width: 220px; height: 220px; right: -30px; bottom: -30px; }
+.wm-bl { width: 220px; height: 220px; left: -30px; bottom: -20px; transform: rotate(-8deg); }
+.wm-tr { width: 200px; height: 200px; right: -20px; top: -10px; transform: rotate(6deg); }
+.wm-center {
+  width: 300px;
+  height: 300px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-4deg);
+  opacity: 0.1;
+}
+
+@media (max-width: 560px) {
+  .wm { opacity: 0.05; }
+  .wm-br, .wm-bl, .wm-tr { width: 150px; height: 150px; }
+  .wm-center { width: 220px; height: 220px; }
+}
+
+/* ---- видимые значки-бейджи бренда у заголовков (гарантированно видны и на телефоне) ---- */
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.section-head h2 {
+  margin: 0;
+}
+
+.brand-badge {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(203, 33, 34, 0.28) 0%, rgba(203, 33, 34, 0.06) 75%);
+  border: 1px solid rgba(203, 33, 34, 0.35);
+}
+
+.brand-badge img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.brand-badge.brand-badge-lg {
+  width: 56px;
+  height: 56px;
+}
+
+.brand-badge.brand-badge-lg img {
+  width: 32px;
+  height: 32px;
+}
+
+.usp-badge-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.footer-badge {
+  margin: 0 auto 10px;
 }
 
 .btn {
@@ -458,6 +545,9 @@ section {
   border-top: 1px solid var(--border);
   color: var(--text-muted);
   padding: 32px 20px;
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
 }
 
 #footer p {

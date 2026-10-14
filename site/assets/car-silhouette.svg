@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 44" role="img" aria-label="Силуэт легкового автомобиля">
+  <path fill="#cb2122" d="M8 30h4l6-14c2-4 6-7 11-7h26c5 0 9 3 11 7l6 14h4c3 0 5 2 5 5s-2 5-5 5H8c-3 0-5-2-5-5s2-5 5-5z"/>
+  <circle cx="26" cy="35" r="8" fill="#cb2122"/>
+  <circle cx="74" cy="35" r="8" fill="#cb2122"/>
+</svg>

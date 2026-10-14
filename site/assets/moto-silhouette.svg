@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" role="img" aria-label="Силуэт мотоцикла">
+  <circle cx="22" cy="38" r="10" fill="none" stroke="#cb2122" stroke-width="4"/>
+  <circle cx="78" cy="38" r="10" fill="none" stroke="#cb2122" stroke-width="4"/>
+  <path fill="none" stroke="#cb2122" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"
+    d="M22 38 L40 24 L58 24 L78 38 M40 24 L34 14 L46 14 M58 24 L62 14"/>
+  <rect x="44" y="18" width="14" height="8" rx="2" fill="#cb2122"/>
+</svg>
