@@ -101,7 +101,38 @@ function initBookingForm() {
   });
 }
 
+function initRatingCounter() {
+  const el = document.getElementById("rating-counter");
+  if (!el || !("IntersectionObserver" in window)) return;
+
+  const target = parseFloat(el.dataset.target || "5.0");
+  let animated = false;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting || animated) return;
+      animated = true;
+
+      const durationMs = 1200;
+      const startTime = performance.now();
+
+      function tick(now) {
+        const progress = Math.min((now - startTime) / durationMs, 1);
+        const value = (target * progress).toFixed(1);
+        el.textContent = value;
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+
+      requestAnimationFrame(tick);
+      observer.disconnect();
+    });
+  }, { threshold: 0.5 });
+
+  observer.observe(el);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   renderSlots();
   initBookingForm();
+  initRatingCounter();
 });
