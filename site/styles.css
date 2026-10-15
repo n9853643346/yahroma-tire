@@ -167,6 +167,12 @@ section {
   gap: 10px;
   padding: 14px 20px;
   border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(20, 22, 26, 0.86);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
 }
 
 .brand-logo {
@@ -375,6 +381,53 @@ section {
   color: var(--text-muted);
 }
 
+/* ---- faq ---- */
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px 16px;
+}
+
+.faq-item summary {
+  padding: 14px 0;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+  padding-right: 28px;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary::after {
+  content: "+";
+  position: absolute;
+  right: 0;
+  top: 14px;
+  color: var(--accent);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.faq-item[open] summary::after {
+  content: "−";
+}
+
+.faq-item p {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+}
+
 /* ---- quiz ---- */
 
 .quiz-sub {
@@ -390,9 +443,26 @@ section {
 }
 
 .quiz-form label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
   color: var(--text-muted);
   margin-top: 8px;
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #14161a;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .quiz-form select {
@@ -595,6 +665,26 @@ section {
 .price-note {
   margin-top: 10px;
   color: var(--text-muted);
+}
+
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 10px 16px;
+  border: 1px solid rgba(203, 33, 34, 0.4);
+  border-radius: 999px;
+  background: rgba(203, 33, 34, 0.08);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.trust-badge::before {
+  content: "✓";
+  color: var(--accent);
+  font-weight: 800;
 }
 
 /* ---- gallery ---- */
