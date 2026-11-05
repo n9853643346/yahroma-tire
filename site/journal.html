@@ -58,7 +58,7 @@ if(r.ok){wmsg.textContent="Записано ✔";[wn,wc,wp].forEach(x=>x.value="
 function csv(){const rows=[["Дата","Время","Имя","Марка","Радиус","Услуга","Телефон","Откуда","Статус"]].concat(B.slice().sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||""))).map(b=>[b.date?dm(b.date):"",b.time||b.when||"",b.name,b.car,b.size,b.service,b.phone,SRC[b.source]||"",b.status]));
 const t="﻿"+rows.map(r=>r.map(c=>'"'+String(c??"").replace(/"/g,'""')+'"').join(";")).join("\r\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/csv"}));a.download="pitstop-journal.csv";a.click()}
 // --- голос ---
-let rec=null;
+let rec=null,active=false,finalT="",t0=0,tick=null;
 function parse(t){const o={};let s=" "+t.toLowerCase().replace(/ё/g,"е")+" ";
 const dg=s.replace(/[^\d]/g," ").split(/\s+/).filter(Boolean);
 let ph=s.match(/(?:\+?[78])?[\s\-()]*\d[\d\s\-()]{8,}\d/);if(ph){const d=ph[0].replace(/\D/g,"");if(d.length>=10){o.phone="+7"+d.slice(-10);s=s.replace(ph[0]," ")}}
@@ -67,9 +67,18 @@ const sv=[[/комплекс|смен.*баланс/,0],[/сезонн|в сбо
 s=s.replace(/телефон|номер|комплекс|сезонн\S*|баланс\S*|ремонт\S*|смен\S*|радиус|диски?|колес\S*|на/g," ");
 const w=s.split(/[,.\s]+/).filter(Boolean);if(w.length){o.name=cap(w[0]);if(w.length>1)o.car=w.slice(1).map(cap).join(" ")}return o}
 const cap=x=>x.charAt(0).toUpperCase()+x.slice(1);
+const LIMIT=60;
+function fillFrom(t){const o=parse(t);if(o.name)wn.value=o.name;if(o.car)wc.value=o.car;if(o.size)ws.value=o.size;if(o.service)wv.value=o.service;if(o.phone)wp.value=o.phone}
+function stopVoice(){active=false;clearInterval(tick);if(rec)rec.stop();mic.classList.remove("on");mic.textContent="🎤 Записать голосом"}
 function voice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){heard.textContent="Голос не поддерживается этим браузером. Откройте журнал в Chrome.";return}
-if(rec){rec.stop();return}rec=new SR();rec.lang="ru-RU";rec.interimResults=false;mic.classList.add("on");mic.textContent="🔴 Слушаю… (нажмите, чтобы закончить)";heard.textContent="";
-rec.onresult=ev=>{const t=[...ev.results].map(r=>r[0].transcript).join(" ");heard.textContent="Услышал: «"+t+"»";const o=parse(t);if(o.name)wn.value=o.name;if(o.car)wc.value=o.car;if(o.size)ws.value=o.size;if(o.service)wv.value=o.service;if(o.phone)wp.value=o.phone}
-rec.onend=()=>{rec=null;mic.classList.remove("on");mic.textContent="🎤 Записать голосом";heard.textContent+=" — проверьте поля и нажмите «Сохранить»."};rec.onerror=ev=>{heard.textContent="Не получилось: "+ev.error+". Разрешите микрофон в браузере."};rec.start()}
+if(active){stopVoice();heard.textContent+=" — проверьте поля и нажмите «Сохранить».";return}
+active=true;finalT="";t0=Date.now();mic.classList.add("on");heard.textContent="";
+tick=setInterval(()=>{const left=LIMIT-Math.floor((Date.now()-t0)/1000);mic.textContent="🔴 Слушаю… "+left+" с (нажмите, чтобы закончить)";if(left<=0){stopVoice();heard.textContent+=" — время вышло, проверьте поля."}},500);
+const start=()=>{rec=new SR();rec.lang="ru-RU";rec.continuous=true;rec.interimResults=true;
+rec.onresult=ev=>{let interim="";for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal)finalT+=" "+r[0].transcript;else interim+=r[0].transcript}
+const all=(finalT+" "+interim).trim();heard.textContent="Услышал: «"+all+"»";fillFrom(all)};
+rec.onerror=ev=>{if(ev.error=="no-speech"||ev.error=="aborted")return;heard.textContent="Не получилось: "+ev.error+". Разрешите микрофон в браузере.";stopVoice()};
+rec.onend=()=>{if(active)setTimeout(()=>{if(active)try{start()}catch(e){}},150)};
+rec.start()};start()}
 if(KEY)load();
 </script></body></html>
