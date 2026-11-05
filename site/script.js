@@ -1,5 +1,5 @@
-const SLOT_MINUTES = 30;
-const SLOTS_SHOWN = 20; // 10 часов вперёд по 30 минут — демо-окно, не вся занятость мастеров
+const SLOT_MINUTES = 50;
+const SLOTS_SHOWN = 12; // 10 часов вперёд по 30 минут — демо-окно, не вся занятость мастеров
 
 // Прайс для седан/универсал/хэтчбек — те же цифры, что в таблице #services
 // (с реального прайс-листа точки). Ключи: сезонная смена, комплекс, балансировка, съём-установка, сборка-разборка.
@@ -36,7 +36,7 @@ function initQuiz() {
 
     if (body === "other") {
       resultEl.innerHTML = `
-        <div class="quiz-result-price">
+        <div class="p">
           Для внедорожников, кроссоверов и микроавтобусов цена считается индивидуально.
           <br />Позвоните нам — скажем точно: <a href="tel:+79161690626">+7 916 169-06-26</a>
         </div>`;
@@ -45,12 +45,12 @@ function initQuiz() {
 
     const price = PRICE_TABLE[size]?.[service];
     if (!price) {
-      resultEl.innerHTML = `<div class="quiz-result-price">Не нашли цену для этого сочетания — позвоните, уточним: <a href="tel:+79161690626">+7 916 169-06-26</a></div>`;
+      resultEl.innerHTML = `<div class="p">Не нашли цену для этого сочетания — позвоните, уточним: <a href="tel:+79161690626">+7 916 169-06-26</a></div>`;
       return;
     }
 
     resultEl.innerHTML = `
-      <div class="quiz-result-price">
+      <div class="p">
         <span class="amount">${price} ₽</span>
         ${SERVICE_LABELS[service]}, ${size}
         <br /><a href="#booking">Записаться на это время →</a>
@@ -116,7 +116,7 @@ function setStatus(text, isError) {
   const status = document.getElementById("booking-status");
   if (!status) return;
   status.textContent = text;
-  status.style.color = isError ? "#ff6b6b" : "#a3a8b3";
+  status.style.color = isError ? "#ff6b6b" : "#ffb347";
 }
 
 function initBookingForm() {
@@ -143,7 +143,7 @@ function initBookingForm() {
       const res = await fetch("/api/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, slot, fallback_time: fallbackTime }),
+        body: JSON.stringify({ name: (document.getElementById("name")||{}).value, car: (document.getElementById("car")||{}).value, phone, slot, fallback_time: fallbackTime }),
       });
 
       if (!res.ok) throw new Error("bad response");
