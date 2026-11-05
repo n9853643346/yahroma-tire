@@ -3,18 +3,7 @@ const SLOTS_SHOWN = 12; // 10 часов вперёд по 30 минут — д�
 
 // Прайс для седан/универсал/хэтчбек — те же цифры, что в таблице #services
 // (с реального прайс-листа точки). Ключи: сезонная смена, комплекс, балансировка, съём-установка, сборка-разборка.
-const PRICE_TABLE = {
-  R13: { seasonal: 1800, complex: 2600, balance: 230, mount: 220, assembly: 200 },
-  R14: { seasonal: 1800, complex: 2600, balance: 230, mount: 220, assembly: 200 },
-  R15: { seasonal: 1840, complex: 2660, balance: 240, mount: 220, assembly: 205 },
-  R16: { seasonal: 2120, complex: 3040, balance: 290, mount: 240, assembly: 320 },
-  R17: { seasonal: 2220, complex: 3180, balance: 305, mount: 250, assembly: 240 },
-  R18: { seasonal: 2360, complex: 3360, balance: 325, mount: 265, assembly: 250 },
-  R19: { seasonal: 2600, complex: 3499, balance: 350, mount: 300, assembly: 290 },
-  R20: { seasonal: 2760, complex: 4060, balance: 365, mount: 325, assembly: 325 },
-  R21: { seasonal: 3000, complex: 4400, balance: 390, mount: 360, assembly: 350 },
-  R22: { seasonal: 3160, complex: 4660, balance: 410, mount: 380, assembly: 375 },
-};
+const PRICE_TABLE = {"sedan": {"R13": {"seasonal": 2000, "complex": 2800, "balance": 250, "mount": 250, "assembly": 200}, "R14": {"seasonal": 2000, "complex": 2800, "balance": 250, "mount": 250, "assembly": 200}, "R15": {"seasonal": 2000, "complex": 2800, "balance": 250, "mount": 250, "assembly": 200}, "R16": {"seasonal": 2200, "complex": 3200, "balance": 300, "mount": 300, "assembly": 250}, "R17": {"seasonal": 2400, "complex": 3400, "balance": 300, "mount": 300, "assembly": 250}, "R18": {"seasonal": 2600, "complex": 3600, "balance": 350, "mount": 300, "assembly": 250}, "R19": {"seasonal": 2600, "complex": 4000, "balance": 350, "mount": 300, "assembly": 250}, "R20": {"seasonal": 3200, "complex": 4600, "balance": 400, "mount": 400, "assembly": 350}, "R21": {"seasonal": 3200, "complex": 4600, "balance": 400, "mount": 400, "assembly": 350}, "R22": {"seasonal": 3200, "complex": 4600, "balance": 400, "mount": 400, "assembly": 350}}, "cross": {"R13": {"seasonal": 2000, "complex": 2800, "balance": 250, "mount": 250, "assembly": 200}, "R14": {"seasonal": 2000, "complex": 2800, "balance": 250, "mount": 250, "assembly": 250}, "R15": {"seasonal": 2000, "complex": 3000, "balance": 250, "mount": 250, "assembly": 250}, "R16": {"seasonal": 2400, "complex": 3400, "balance": 300, "mount": 300, "assembly": 300}, "R17": {"seasonal": 2600, "complex": 3600, "balance": 350, "mount": 300, "assembly": 300}, "R18": {"seasonal": 2600, "complex": 3800, "balance": 400, "mount": 300, "assembly": 300}, "R19": {"seasonal": 3000, "complex": 4200, "balance": 400, "mount": 350, "assembly": 300}, "R20": {"seasonal": 3000, "complex": 4600, "balance": 400, "mount": 350, "assembly": 300}, "R21": {"seasonal": 3600, "complex": 5200, "balance": 500, "mount": 400, "assembly": 400}, "R22": {"seasonal": 3600, "complex": 5200, "balance": 500, "mount": 400, "assembly": 400}, "R23": {"seasonal": 3600, "complex": 5200, "balance": 500, "mount": 400, "assembly": 400}}};
 
 const SERVICE_LABELS = {
   seasonal: "Сезонная смена колёс в сборе",
@@ -37,15 +26,15 @@ function initQuiz() {
     if (body === "other") {
       resultEl.innerHTML = `
         <div class="p">
-          Для внедорожников, кроссоверов и микроавтобусов цена считается индивидуально.
+          Для микроавтобусов и нестандартных колёс цена считается индивидуально.
           <br />Позвоните нам — скажем точно: <a href="tel:+79161690626">+7 916 169-06-26</a>
         </div>`;
       return;
     }
 
-    const price = PRICE_TABLE[size]?.[service];
+    const price = (PRICE_TABLE[body] || {})[size]?.[service];
     if (!price) {
-      resultEl.innerHTML = `<div class="p">Не нашли цену для этого сочетания — позвоните, уточним: <a href="tel:+79161690626">+7 916 169-06-26</a></div>`;
+      resultEl.innerHTML = `<div class="p">Для этого сочетания нужен расчёт — позвоните, уточним: <a href="tel:+79161690626">+7 916 169-06-26</a></div>`;
       return;
     }
 
@@ -143,7 +132,7 @@ function initBookingForm() {
       const res = await fetch("/api/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: (document.getElementById("name")||{}).value, car: (document.getElementById("car")||{}).value, phone, slot, fallback_time: fallbackTime }),
+        body: JSON.stringify({ name: (document.getElementById("name")||{}).value, car: (document.getElementById("car")||{}).value, phone, slot, fallback_time: fallbackTime, time: slot ? (document.querySelector(".slot-chip.selected")||{}).textContent : fallbackTime }),
       });
 
       if (!res.ok) throw new Error("bad response");
@@ -159,6 +148,7 @@ function initBookingForm() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===b));document.querySelectorAll(".tp").forEach(t=>t.hidden=t.id!==b.dataset.t);}));
   renderSlots();
   initBookingForm();
   initQuiz();
