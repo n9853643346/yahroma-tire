@@ -125,6 +125,7 @@ function initBookingForm() {
 
     const phone = document.getElementById("phone").value;
         const fallbackTime = document.getElementById("fallback_time").value;
+    if (!document.getElementById("bdate").value || !document.getElementById("btime").value) { setStatus("Выберите дату и точное время.", true); return; }
 
     if (!isValidPhone(phone)) {
       setStatus("Проверьте номер телефона — похоже, не хватает цифр.", true);
@@ -141,6 +142,7 @@ function initBookingForm() {
         body: JSON.stringify({ name: (document.getElementById("name")||{}).value, car: (document.getElementById("car")||{}).value, size: document.getElementById("bsize").value, service: document.getElementById("bservice").value, phone, date: document.getElementById("bdate").value, time: document.getElementById("btime").value, fallback_time: fallbackTime }),
       });
 
+      if (res.status === 400) { setStatus("Выберите дату и время, которые ещё не прошли.", true); submitBtn.disabled = false; return; }
       if (res.status === 409) { setStatus("Это время уже занято — выберите другое.", true); submitBtn.disabled = false; return; }
       if (!res.ok) throw new Error("bad response");
 
