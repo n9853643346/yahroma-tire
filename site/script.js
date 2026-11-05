@@ -78,25 +78,26 @@ function generateSlots(date) {
   return slots;
 }
 
-function renderSlots() {
-  const container = document.getElementById("slots");
-  const hiddenInput = document.getElementById("slot");
-  if (!container || !hiddenInput) return;
-
-  const slots = generateSlots(new Date());
-
-  slots.forEach((slot) => {
-    const chip = document.createElement("div");
-    chip.className = "slot-chip";
-    chip.textContent = slot.label;
-    chip.dataset.value = slot.value;
-    chip.addEventListener("click", () => {
-      document.querySelectorAll(".slot-chip").forEach((el) => el.classList.remove("selected"));
-      chip.classList.add("selected");
-      hiddenInput.value = slot.value;
-    });
-    container.appendChild(chip);
-  });
+async function renderSlots() {
+  const dateEl = document.getElementById("bdate"), timeEl = document.getElementById("btime");
+  if (!dateEl || !timeEl) return;
+  const msk = new Date(Date.now() + 3 * 3600e3), p = (x) => String(x).padStart(2, "0");
+  const iso = (d) => `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}`;
+  const max = new Date(msk); max.setUTCMonth(max.getUTCMonth() + 6);
+  dateEl.min = iso(msk); dateEl.max = iso(max); if (!dateEl.value) dateEl.value = iso(msk);
+  async function fill() {
+    let busy = [];
+    try { const r = await fetch("/api/slots?date=" + dateEl.value); busy = (await r.json()).busy || []; } catch (e) {}
+    const nowT = p(msk.getUTCHours()) + ":" + p(msk.getUTCMinutes()), today = dateEl.value === iso(msk);
+    timeEl.innerHTML = "";
+    for (let m = 0; m < 1440; m += 30) {
+      const t = p(Math.floor(m / 60)) + ":" + p(m % 60);
+      if (today && t < nowT) continue;
+      const o = document.createElement("option"); o.value = t; o.textContent = t + (busy.includes(t) ? " — занято" : ""); o.disabled = busy.includes(t); timeEl.appendChild(o);
+    }
+    const first = [...timeEl.options].find((o) => !o.disabled); if (first) timeEl.value = first.value;
+  }
+  dateEl.addEventListener("change", fill); fill();
 }
 
 function digitsOnly(str) {
@@ -123,8 +124,7 @@ function initBookingForm() {
     e.preventDefault();
 
     const phone = document.getElementById("phone").value;
-    const slot = document.getElementById("slot").value;
-    const fallbackTime = document.getElementById("fallback_time").value;
+        const fallbackTime = document.getElementById("fallback_time").value;
 
     if (!isValidPhone(phone)) {
       setStatus("Проверьте номер телефона — похоже, не хватает цифр.", true);
@@ -138,14 +138,15 @@ function initBookingForm() {
       const res = await fetch("/api/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: (document.getElementById("name")||{}).value, car: (document.getElementById("car")||{}).value, phone, slot, fallback_time: fallbackTime, time: slot ? (document.querySelector(".slot-chip.selected")||{}).textContent : fallbackTime }),
+        body: JSON.stringify({ name: (document.getElementById("name")||{}).value, car: (document.getElementById("car")||{}).value, size: document.getElementById("bsize").value, service: document.getElementById("bservice").value, phone, date: document.getElementById("bdate").value, time: document.getElementById("btime").value, fallback_time: fallbackTime }),
       });
 
+      if (res.status === 409) { setStatus("Это время уже занято — выберите другое.", true); submitBtn.disabled = false; return; }
       if (!res.ok) throw new Error("bad response");
 
       setStatus("Заявка отправлена, вам перезвонят.", false);
       form.reset();
-      document.querySelectorAll(".slot-chip").forEach((el) => el.classList.remove("selected"));
+      renderSlots();
     } catch (err) {
       setStatus("Не получилось отправить онлайн — позвоните нам: +7 916 169-06-26", true);
       submitBtn.disabled = false;

@@ -1,0 +1,75 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Журнал ПИТ-СТОП</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0d0b09;color:#fff;font:16px system-ui,sans-serif}
+header{display:flex;gap:12px;align-items:center;padding:12px 16px;background:#15100b;border-bottom:3px solid #ff8a00;flex-wrap:wrap}
+header h1{margin:0;font-size:20px;color:#ff8a00;font-style:italic;flex:1}
+button,input,select{font:inherit;border-radius:12px;border:1px solid #3a2a18;background:#0d0b09;color:#fff;padding:12px}
+button{cursor:pointer;background:#1c1610}.pri{background:linear-gradient(#ffa21f,#ff7a00);color:#1b0f00;font-weight:800;border:0}
+.mic{width:100%;font-size:22px;padding:22px;margin:10px 0}.mic.on{background:#c0392b;color:#fff;animation:p 1s infinite}@keyframes p{50%{opacity:.6}}
+main>div{min-width:0}main{display:grid;grid-template-columns:300px 1fr;gap:16px;padding:16px}@media(max-width:900px){main{grid-template-columns:1fr}}
+.box{background:#15100b;border:1px solid #2c2118;border-radius:16px;padding:14px;margin-bottom:16px}
+h2{margin:0 0 10px;font-size:17px}.mon{margin-bottom:12px}.mon b{display:block;margin:4px 0;text-transform:capitalize}
+.g{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.g span{font-size:11px;color:#998;text-align:center}
+.d{position:relative;padding:8px 0;text-align:center;border-radius:8px;background:#0d0b09;font-size:14px;cursor:pointer;border:1px solid transparent}
+.d.has{border-color:#ff8a00}.d.sel{background:#ff8a00;color:#1b0f00;font-weight:800}.d.today{outline:1px dashed #fff}.d i{position:absolute;right:2px;top:0;font-size:10px;color:#ffb347;font-style:normal}.d.sel i{color:#1b0f00}
+.tw{overflow:auto}table{border-collapse:collapse;width:100%;min-width:640px}th,td{padding:8px;border-bottom:1px solid #2c2118;text-align:left;font-size:14px;white-space:nowrap}th{color:#ffb347;position:sticky;top:0;background:#15100b}
+tr.cancel td{opacity:.4;text-decoration:line-through}tr.noshow td{color:#ff6b6b}tr.came td:first-child{color:#6fdc8c}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:8px 0}
+.sm{padding:6px 9px;font-size:13px}#login{max-width:420px;margin:60px auto;padding:20px}#app{display:none}.hint{color:#998;font-size:13px}
+</style></head><body>
+<div id="login" class="box"><h2>Журнал мастера</h2><input id="key" type="password" placeholder="Пароль" style="width:100%;margin:10px 0"><button class="pri" style="width:100%" onclick="enter()">Войти</button><p id="lerr" class="hint"></p></div>
+<div id="app"><header><h1>ПИТ-СТОП · журнал</h1><button onclick="load()">Обновить</button><button onclick="csv()">Скачать для Excel</button><button onclick="logout()">Выйти</button></header>
+<main><div><div class="box"><h2>Календарь</h2><div id="cal"></div><button onclick="moreMonths()" style="width:100%">Показать ещё месяц</button><button onclick="selDate=null;render()" style="width:100%;margin-top:6px">Показать все дни</button></div></div>
+<div>
+<div class="box" id="walk"><h2>Приехал без записи</h2>
+<button class="mic" id="mic" onclick="voice()">🎤 Записать голосом</button>
+<p class="hint" id="heard">Нажмите и скажите: «Иван, Киа Рио, R16, комплекс, телефон 916 123 45 67». Поля заполнятся сами.</p>
+<div class="row"><input id="wn" placeholder="Имя"><input id="wc" placeholder="Марка авто"><select id="ws"></select><select id="wv"></select><input id="wp" type="tel" placeholder="Телефон"></div>
+<button class="pri mic" style="font-size:20px;padding:16px;margin:4px 0" onclick="saveWalk()">Сохранить: приехал сейчас</button><span id="wmsg" class="hint"></span></div>
+<div class="box"><h2 id="title">Записи</h2><div class="tw"><table><thead><tr><th>Дата</th><th>Время</th><th>Имя</th><th>Марка</th><th>Радиус</th><th>Услуга</th><th>Телефон</th><th>Откуда</th><th></th></tr></thead><tbody id="tb"></tbody></table></div></div>
+</div></main></div>
+<script>
+const SZ=["R13","R14","R15","R16","R17","R18","R19","R20","R21","R22","R23"],SV=["Комплекс (смена + балансировка)","Сезонная смена в сборе","Только балансировка","Ремонт шины / диска","Другое"];
+const SRC={site:"сайт",bot:"бот",walkin:"без записи",master:"мастер"};
+let KEY=localStorage.pk||"",B=[],NOW=null,selDate=null,months=3;
+ws.innerHTML=SZ.map(x=>`<option ${x=="R16"?"selected":""}>${x}</option>`).join("");wv.innerHTML=SV.map(x=>`<option>${x}</option>`).join("");
+const api=(m,b)=>fetch("/api/journal",{method:m,headers:{"x-key":KEY,"content-type":"application/json"},body:b?JSON.stringify(b):undefined});
+async function enter(){KEY=key.value;localStorage.pk=KEY;await load()}
+function logout(){localStorage.removeItem("pk");location.reload()}
+async function load(){const r=await api("GET");if(r.status==401){login.style.display="block";app.style.display="none";lerr.textContent=KEY?"Неверный пароль":"";return}
+const j=await r.json();B=j.bookings;NOW=j.now;login.style.display="none";app.style.display="block";render()}
+const p2=x=>String(x).padStart(2,"0"),dm=d=>d.split("-").reverse().join(".");
+function render(){const cnt={};B.filter(b=>b.date&&b.status!="cancel").forEach(b=>cnt[b.date]=(cnt[b.date]||0)+1);
+let h="";const [Y,M]=NOW.date.split("-").map(Number);
+for(let k=0;k<months;k++){const dt=new Date(Date.UTC(Y,M-1+k,1)),y=dt.getUTCFullYear(),m=dt.getUTCMonth(),first=(dt.getUTCDay()+6)%7,days=new Date(Date.UTC(y,m+1,0)).getUTCDate();
+h+=`<div class="mon"><b>${dt.toLocaleString("ru",{month:"long",year:"numeric",timeZone:"UTC"})}</b><div class="g">${"ПнВтСрЧтПтСбВс".match(/../g).map(x=>`<span>${x}</span>`).join("")}${"<div></div>".repeat(first)}`;
+for(let d=1;d<=days;d++){const iso=`${y}-${p2(m+1)}-${p2(d)}`;h+=`<div class="d ${cnt[iso]?"has":""} ${iso==selDate?"sel":""} ${iso==NOW.date?"today":""}" onclick="pick('${iso}')">${d}${cnt[iso]?`<i>${cnt[iso]}</i>`:""}</div>`}
+h+="</div></div>"}cal.innerHTML=h;
+let L=B.filter(b=>b.date||b.when);if(selDate)L=L.filter(b=>b.date==selDate);else L=L.filter(b=>!b.date||b.date>=NOW.date||b.source=="walkin");
+L.sort((a,b)=>((a.date||"9999")+(a.time||"")).localeCompare((b.date||"9999")+(b.time||"")));
+title.textContent=selDate?"Записи на "+dm(selDate):"Все ближайшие записи";
+tb.innerHTML=L.map(b=>`<tr class="${b.status}"><td>${b.date?dm(b.date):"—"}</td><td>${b.time||b.when||"по звонку"}</td><td>${e(b.name)}</td><td>${e(b.car)}</td><td>${e(b.size)}</td><td>${e(b.service)}</td><td>${b.phone?`<a style="color:#ffb347" href="tel:${e(b.phone)}">${e(b.phone)}</a>`:""}</td><td>${SRC[b.source]||""}</td><td><button class="sm" onclick="st(${b.id},'came')">Приехал</button> <button class="sm" onclick="st(${b.id},'noshow')">Не приехал</button> <button class="sm" onclick="st(${b.id},'cancel')">Отмена</button></td></tr>`).join("")||`<tr><td colspan=9 class="hint">Записей нет</td></tr>`}
+const e=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function pick(d){selDate=selDate==d?null:d;render()}function moreMonths(){months++;render()}
+async function st(id,s){await api("POST",{action:"status",id,status:s});load()}
+async function saveWalk(){if(!wn.value&&!wc.value&&!wp.value){wmsg.textContent="Заполните хотя бы что-то";return}
+const r=await api("POST",{action:"add",walkin:true,name:wn.value,car:wc.value,size:ws.value,service:wv.value,phone:wp.value});
+if(r.ok){wmsg.textContent="Записано ✔";[wn,wc,wp].forEach(x=>x.value="");heard.textContent="Готово. Следующий клиент — нажмите микрофон.";load()}else wmsg.textContent="Ошибка, попробуйте ещё раз"}
+function csv(){const rows=[["Дата","Время","Имя","Марка","Радиус","Услуга","Телефон","Откуда","Статус"]].concat(B.slice().sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||""))).map(b=>[b.date?dm(b.date):"",b.time||b.when||"",b.name,b.car,b.size,b.service,b.phone,SRC[b.source]||"",b.status]));
+const t="﻿"+rows.map(r=>r.map(c=>'"'+String(c??"").replace(/"/g,'""')+'"').join(";")).join("\r\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/csv"}));a.download="pitstop-journal.csv";a.click()}
+// --- голос ---
+let rec=null;
+function parse(t){const o={};let s=" "+t.toLowerCase().replace(/ё/g,"е")+" ";
+const dg=s.replace(/[^\d]/g," ").split(/\s+/).filter(Boolean);
+let ph=s.match(/(?:\+?[78])?[\s\-()]*\d[\d\s\-()]{8,}\d/);if(ph){const d=ph[0].replace(/\D/g,"");if(d.length>=10){o.phone="+7"+d.slice(-10);s=s.replace(ph[0]," ")}}
+let m=s.match(/(?:\bр|радиус\s*|\br)\s*-?\s*(\d{2})\b/)||s.match(/\b(1[3-9]|2[0-3])\b/);if(m){o.size="R"+m[1];s=s.replace(m[0]," ")}
+const sv=[[/комплекс|смен.*баланс/,0],[/сезонн|в сборе|переобув/,1],[/баланс/,2],[/ремонт|латк|заплат|вулканиз|жгут|диск/,3]];for(const[r,i]of sv)if(r.test(s)){o.service=SV[i];break}
+s=s.replace(/телефон|номер|комплекс|сезонн\S*|баланс\S*|ремонт\S*|смен\S*|радиус|диски?|колес\S*|на/g," ");
+const w=s.split(/[,.\s]+/).filter(Boolean);if(w.length){o.name=cap(w[0]);if(w.length>1)o.car=w.slice(1).map(cap).join(" ")}return o}
+const cap=x=>x.charAt(0).toUpperCase()+x.slice(1);
+function voice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){heard.textContent="Голос не поддерживается этим браузером. Откройте журнал в Chrome.";return}
+if(rec){rec.stop();return}rec=new SR();rec.lang="ru-RU";rec.interimResults=false;mic.classList.add("on");mic.textContent="🔴 Слушаю… (нажмите, чтобы закончить)";heard.textContent="";
+rec.onresult=ev=>{const t=[...ev.results].map(r=>r[0].transcript).join(" ");heard.textContent="Услышал: «"+t+"»";const o=parse(t);if(o.name)wn.value=o.name;if(o.car)wc.value=o.car;if(o.size)ws.value=o.size;if(o.service)wv.value=o.service;if(o.phone)wp.value=o.phone}
+rec.onend=()=>{rec=null;mic.classList.remove("on");mic.textContent="🎤 Записать голосом";heard.textContent+=" — проверьте поля и нажмите «Сохранить»."};rec.onerror=ev=>{heard.textContent="Не получилось: "+ev.error+". Разрешите микрофон в браузере."};rec.start()}
+if(KEY)load();
+</script></body></html>

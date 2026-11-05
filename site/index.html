@@ -71,9 +71,12 @@
 <form id="booking-form" class="card">
 <label for="name">Имя</label><input id="name" placeholder="Как к вам обращаться">
 <label for="phone">Телефон</label><input type="tel" id="phone" placeholder="+7 900 000-00-00" required>
-<label for="car">Автомобиль и размер колёс</label><input id="car" placeholder="Kia Sportage, R16">
-<p class="sl">Удобное время:</p><div id="slots"></div><input type="hidden" id="slot">
-<label for="fallback_time">Или опишите время текстом</label><input id="fallback_time" placeholder="например, сегодня вечером">
+<label for="car">Марка автомобиля</label><input id="car" placeholder="Kia Sportage">
+<label for="bsize">Радиус колёс</label><select id="bsize"><option>R13</option><option>R14</option><option>R15</option><option selected>R16</option><option>R17</option><option>R18</option><option>R19</option><option>R20</option><option>R21</option><option>R22</option><option>R23</option></select>
+<label for="bservice">Что нужно сделать</label><select id="bservice"><option>Комплекс (смена + балансировка)</option><option>Сезонная смена в сборе</option><option>Только балансировка</option><option>Ремонт шины / диска</option><option>Другое</option></select>
+<label for="bdate">Дата</label><input type="date" id="bdate">
+<label for="btime">Время (занятое недоступно)</label><select id="btime"></select>
+<label for="fallback_time">Комментарий или другое время</label><input id="fallback_time" placeholder="например, приеду вечером">
 <button type="submit" id="booking-submit" class="btn pri"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Отправить заявку</button>
 <div id="booking-status" role="status"></div></form></section>
 
