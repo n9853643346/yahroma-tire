@@ -18,33 +18,39 @@ function initQuiz() {
   const resultEl = document.getElementById("quiz-result");
   if (!calcBtn || !resultEl) return;
 
-  calcBtn.addEventListener("click", () => {
+  const fmt = (n) => n.toLocaleString("ru-RU");
+  function calc() {
     const body = document.getElementById("quiz-body").value;
     const size = document.getElementById("quiz-size").value;
     const service = document.getElementById("quiz-service").value;
+    let exMin = 0, exMax = 0, exNames = [];
+    document.querySelectorAll("#quiz-extras .ex").forEach((row) => {
+      const cb = row.querySelector(".ex-cb");
+      if (!cb.checked) return;
+      const q = Math.max(1, parseInt(row.querySelector(".ex-q").value, 10) || 1);
+      exMin += +cb.dataset.min * q; exMax += +cb.dataset.max * q;
+      exNames.push(row.querySelector("span").textContent + (q > 1 ? " ×" + q : ""));
+    });
+    const exTxt = () => exMin === exMax ? fmt(exMin) : fmt(exMin) + "–" + fmt(exMax);
 
     if (body === "other") {
-      resultEl.innerHTML = `
-        <div class="p">
-          Для микроавтобусов и нестандартных колёс цена считается индивидуально.
-          <br />Позвоните нам — скажем точно: <a href="tel:+79161690626">+7 916 169-06-26</a>
-        </div>`;
+      resultEl.innerHTML = `<div class="p">Для микроавтобусов и нестандартных колёс цена считается индивидуально.<br />Позвоните нам: <a href="tel:+79161690626">+7 916 169-06-26</a>${exNames.length ? `<br />Допуслуги отдельно: ${exTxt()} ₽` : ""}</div>`;
       return;
     }
-
     const price = (PRICE_TABLE[body] || {})[size]?.[service];
     if (!price) {
       resultEl.innerHTML = `<div class="p">Для этого сочетания нужен расчёт — позвоните, уточним: <a href="tel:+79161690626">+7 916 169-06-26</a></div>`;
       return;
     }
-
-    resultEl.innerHTML = `
-      <div class="p">
-        <span class="amount">${price} ₽</span>
-        ${SERVICE_LABELS[service]}, ${size}
-        <br /><a href="#booking">Записаться на это время →</a>
-      </div>`;
-  });
+    const lo = price + exMin, hi = price + exMax;
+    const total = lo === hi ? fmt(lo) : "от " + fmt(lo) + " до " + fmt(hi);
+    let lines = `<li>${SERVICE_LABELS[service]}, ${size} <b>${fmt(price)} ₽</b></li>`;
+    if (exNames.length) lines += `<li>Допуслуги: ${exNames.join(", ")} <b>${exTxt()} ₽</b></li>`;
+    resultEl.innerHTML = `<div class="p"><span class="amount">${total} ₽</span><ul class="sum">${lines}</ul><a href="#booking">Записаться →</a></div>`;
+  }
+  calcBtn.addEventListener("click", calc);
+  document.querySelectorAll("#quiz-extras input").forEach((el) => el.addEventListener("input", () => { if (resultEl.innerHTML.trim()) calc(); }));
+  ["quiz-body","quiz-size","quiz-service"].forEach((id) => document.getElementById(id).addEventListener("change", () => { if (resultEl.innerHTML.trim()) calc(); }));
 }
 
 function generateSlots(date) {
