@@ -1,3 +1,4 @@
+const API=(n)=>location.hostname.endsWith("vercel.app")?"/api/"+n:"https://functions.yandexcloud.net/d4ev96t61e3fse642aqc?r="+n;
 const SLOT_MINUTES = 50;
 const SLOTS_SHOWN = 12; // 10 часов вперёд по 30 минут — демо-окно, не вся занятость мастеров
 
@@ -87,7 +88,7 @@ async function renderSlots() {
   dateEl.min = iso(msk); dateEl.max = iso(max); if (!dateEl.value) dateEl.value = iso(msk);
   async function fill() {
     let busy = [];
-    try { const r = await fetch("/api/slots?date=" + dateEl.value); busy = (await r.json()).busy || []; } catch (e) {}
+    try { const r = await fetch(API("slots") + "&date=" + dateEl.value); busy = (await r.json()).busy || []; } catch (e) {}
     const nowT = p(msk.getUTCHours()) + ":" + p(msk.getUTCMinutes()), today = dateEl.value === iso(msk);
     timeEl.innerHTML = "";
     for (let m = 0; m < 1440; m += 30) {
@@ -136,7 +137,7 @@ function initBookingForm() {
     setStatus("Отправляем заявку…", false);
 
     try {
-      const res = await fetch("/api/booking", {
+      const res = await fetch(API("booking"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: (document.getElementById("name")||{}).value, car: (document.getElementById("car")||{}).value, size: document.getElementById("bsize").value, service: document.getElementById("bservice").value, phone, date: document.getElementById("bdate").value, time: document.getElementById("btime").value, fallback_time: fallbackTime }),

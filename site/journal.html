@@ -33,7 +33,8 @@ const SZ=["R13","R14","R15","R16","R17","R18","R19","R20","R21","R22","R23"],SV=
 const SRC={site:"сайт",bot:"бот",walkin:"без записи",master:"мастер"};
 let KEY=localStorage.pk||"",B=[],NOW=null,selDate=null,months=3;
 ws.innerHTML=SZ.map(x=>`<option ${x=="R16"?"selected":""}>${x}</option>`).join("");wv.innerHTML=SV.map(x=>`<option>${x}</option>`).join("");
-const api=(m,b)=>fetch("/api/journal",{method:m,headers:{"x-key":KEY,"content-type":"application/json"},body:b?JSON.stringify(b):undefined});
+const API=(n)=>location.hostname.endsWith("vercel.app")?"/api/"+n:"https://functions.yandexcloud.net/d4ev96t61e3fse642aqc?r="+n;
+const api=(m,b)=>fetch(API("journal"),{method:m,headers:{"x-key":KEY,"content-type":"application/json"},body:b?JSON.stringify(b):undefined});
 async function enter(){KEY=key.value;localStorage.pk=KEY;await load()}
 function logout(){localStorage.removeItem("pk");location.reload()}
 async function load(){const r=await api("GET");if(r.status==401){login.style.display="block";app.style.display="none";lerr.textContent=KEY?"Неверный пароль":"";return}
