@@ -1,10 +1,13 @@
-const db = require("./_db");
+// Прокси к единой базе в Яндекс Облаке (резервная Vercel-версия)
+const FN = "https://functions.yandexcloud.net/d4ev96t61e3fse642aqc";
 module.exports = async (req, res) => {
-  const d = String(req.query.date || "");
-  if (!/^\d{4}-\d\d-\d\d$/.test(d)) return res.status(400).json({ ok: false });
   try {
-    const data = await db.load(); const busy = [];
-    for (let m = 0; m < 1440; m += 30) { const t = String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); if (!db.isFree(data, d, t)) busy.push(t); }
-    res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: true, busy });
-  } catch (e) { return res.status(200).json({ ok: true, busy: [] }); }
+    const q = new URLSearchParams({ r: "slots" });
+    for (const [k, v] of Object.entries(req.query || {})) if (k !== "r") q.set(k, String(v));
+    const init = { method: req.method, headers: { "content-type": "application/json" } };
+    if (req.headers["x-key"]) init.headers["x-key"] = req.headers["x-key"];
+    if (req.method !== "GET" && req.method !== "HEAD") init.body = typeof req.body === "string" ? req.body : JSON.stringify(req.body || {});
+    const r = await fetch(FN + "?" + q, init);
+    res.status(r.status).setHeader("content-type", "application/json").send(await r.text());
+  } catch (e) { res.status(502).json({ ok: false }); }
 };
