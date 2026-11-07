@@ -68,3 +68,7 @@ footer{margin-top:50px;background:#14100c;border-top:7px solid #ff8a00;padding:2
 .ex input[type=checkbox]{width:20px;height:20px;accent-color:#ff8a00;padding:0}
 .ex .ex-q{padding:6px;width:64px;font-size:15px}
 .sum{margin:10px 0;padding:0;list-style:none;font-size:15px;color:#cbb}.sum li{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+
+.navi{display:inline-flex;align-items:center;gap:10px;margin-top:10px;padding:15px 26px;border-radius:40px;background:#fc0;color:#111;font-weight:700;text-decoration:none;box-shadow:0 6px 22px #ffcc0044}
+.navi:hover{background:#ffd633}
+@media(max-width:640px){.navi{width:100%;justify-content:center}}
