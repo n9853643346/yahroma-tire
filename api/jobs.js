@@ -25,6 +25,15 @@ module.exports = async (req, res) => {
     const r = await fetch(u); const t = await r.text();
     return res.status(200).send(t.replace(/bot\d+:[\w-]+/g, "bot***"));
   }
+  if (q.r === "tg") { // чтение публичного канала через t.me/s (запрос идёт с Vercel)
+    if (q.k !== process.env.JB_SETUP) return res.status(401).end();
+    const ch = String(q.c || "").replace(/[^\w]/g, "");
+    const r = await fetch("https://t.me/s/" + ch, { headers: { "User-Agent": "Mozilla/5.0" } });
+    const h = await r.text();
+    const posts = [...h.matchAll(/data-post="([^"]+)"[\s\S]*?<div class="tgme_widget_message_text[^>]*>([\s\S]*?)<\/div>[\s\S]*?datetime="([^"]+)"/g)]
+      .map(m => ({ id: m[1], date: m[3], text: m[2].replace(/<br\s*\/?>/g, "\n").replace(/<[^>]+>/g, "").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;/g, "'") }));
+    return res.status(200).json({ status: r.status, count: posts.length, posts: posts.slice(-30) });
+  }
   if (q.r === "push") { // я присылаю подборку: POST {kind:"freelance"|"staff", text}
     if (q.k !== process.env.JB_SETUP) return res.status(401).end();
     const b = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
