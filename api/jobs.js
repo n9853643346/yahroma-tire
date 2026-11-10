@@ -5,16 +5,49 @@ const TG = (m) => `https://api.telegram.org/bot${process.env.JB_TOKEN}/${m}`;
 async function load() {
   const r = await fetch(GH(), { headers: GHH() });
   if (r.status === 404) return { s: { owner: null, freelance: null, staff: null }, sha: null };
+  if (!r.ok) throw new Error("state_read_" + r.status);
   const j = await r.json();
   return { s: JSON.parse(Buffer.from(j.content, "base64").toString("utf8")), sha: j.sha };
 }
 async function save(s, sha) {
-  await fetch(GH(), { method: "PUT", headers: GHH(), body: JSON.stringify({ message: "jobs state", content: Buffer.from(JSON.stringify(s)).toString("base64"), sha: sha || undefined }) });
+  const r = await fetch(GH(), { method: "PUT", headers: GHH(), body: JSON.stringify({ message: "jobs state", content: Buffer.from(JSON.stringify(s)).toString("base64"), sha: sha || undefined }) });
+  if (!r.ok) { const e = new Error("state_write_" + r.status); e.conflict = r.status === 409; throw e; }
+}
+async function change(fn) {
+  for (let i = 0; i < 4; i++) {
+    const { s, sha } = await load();
+    const result = fn(s);
+    if (result === false) return { s, changed: false };
+    try { await save(s, sha); return { s, changed: true, result }; }
+    catch (e) { if (!e.conflict || i === 3) throw e; }
+  }
+}
+function plain(text) {
+  return String(text).replace(/<a\s+[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, "$2 ($1)")
+    .replace(/<br\s*\/?>/gi, "\n").replace(/<\/?(?:b|strong|i|em|code|pre|u|s|a)(?:\s[^>]*)?>/gi, "")
+    .replace(/&#(x[0-9a-f]+|\d+);/gi, (m, n) => { const c = n[0].toLowerCase() === "x" ? parseInt(n.slice(1), 16) : Number(n); return c <= 0x10ffff ? String.fromCodePoint(c) : m; })
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
+}
+function chunks(text) {
+  let t = String(text); const parts = [];
+  while (t.length > 3900) {
+    let n = t.lastIndexOf("\n", 3900);
+    if (n < 2000) n = 3900;
+    if (/[\uD800-\uDBFF]/.test(t[n - 1])) n--;
+    parts.push(t.slice(0, n)); t = t.slice(n);
+  }
+  if (t) parts.push(t);
+  return parts;
 }
 async function send(chat, text) {
-  const t = String(text); const parts = [];
-  for (let i = 0; i < t.length; i += 3900) parts.push(t.slice(i, i + 3900));
-  for (const p of parts) await fetch(TG("sendMessage"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: chat, text: p, parse_mode: "HTML", disable_web_page_preview: true }) });
+  const ids = [];
+  for (const p of chunks(text)) {
+    const r = await fetch(TG("sendMessage"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: chat, text: p, disable_web_page_preview: true }), signal: AbortSignal.timeout(10000) });
+    const j = await r.json();
+    if (!r.ok || !j.ok) throw new Error("telegram_send_" + (j.error_code || r.status));
+    ids.push(j.result.message_id);
+  }
+  return ids;
 }
 const NAMES = { freelance: "Фриланс", staff: "Штатные вакансии" };
 module.exports = async (req, res) => {
